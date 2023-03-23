@@ -27,9 +27,6 @@ WORKDIR /app
 COPY --from=build --chown=devops:devops /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
 COPY --from=build --chown=devops:devops /app/app.py .
 
-# Set the environment variable
-ENV NAME World
-
 # Expose the port
 EXPOSE 80
 
