@@ -2,8 +2,8 @@
 FROM python:3.9-slim-buster AS build
 
 # Set a non-root user
-RUN useradd --create-home appuser
-USER appuser
+RUN useradd --create-home devops
+USER devops
 
 WORKDIR /app
 
@@ -18,14 +18,14 @@ COPY app.py .
 FROM python:3.9-slim-buster
 
 # Set a non-root user
-RUN useradd --create-home appuser
-USER appuser
+RUN useradd --create-home devops
+USER devops
 
 WORKDIR /app
 
 # Copy only the necessary files from the build stage
-COPY --from=build --chown=appuser:appuser /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-COPY --from=build --chown=appuser:appuser /app/app.py .
+COPY --from=build --chown=devops:devops /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=build --chown=devops:devops /app/app.py .
 
 # Expose the port
 EXPOSE 80
