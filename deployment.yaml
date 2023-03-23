@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app-deployment
+  labels:
+    app: python-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: python-app
+  template:
+    metadata:
+      labels:
+        app: python-app
+    spec:
+      containers:
+      - name: python-app
+        image: my-docker-registry/python-app:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_APP
+          value: "app.py"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+              - all
+            add:
+              - CHOWN
+              - DAC_OVERRIDE
+              - SETUID
+        volumeMounts:
+          - name: app-config
+            mountPath: /app/config
+          - name: app-data
+            mountPath: /app/data
+      volumes:
+        - name: app-config
+          configMap:
+            name: python-app-config
+        - name: app-data
+          emptyDir: {}
+      imagePullSecrets:
+      - name: my-registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-app-service
+  labels:
+    app: python-app
+spec:
+  type: ClusterIP
+  selector:
+    app: python-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
