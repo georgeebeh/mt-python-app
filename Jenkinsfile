@@ -13,11 +13,11 @@ pipeline {
         }
 
         // Build the Docker image with the same version tag as the Jenkins build number
-        sh "docker build -t my-docker-registry/python-app:${env.VERSION} ."
+        sh "docker build -t georgeebeh/python-app:${env.VERSION} ."
       }
     }
 
-    stage('Deploy') {
+   /* stage('Deploy') {
       environment {
         KUBECONFIG = credentials('my-kubeconfig')
       }
@@ -29,6 +29,6 @@ pipeline {
         // Sync the application to deploy the latest changes
         sh 'argocd app sync my-python-app'
       }
-    }
+    }*/
   }
 }
