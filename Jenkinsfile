@@ -17,7 +17,7 @@ pipeline {
       }
     }
 
-    stage('Deploy') {
+   /* stage('Deploy') {
       environment {
         KUBECONFIG = credentials('my-kubeconfig')
       }
@@ -29,6 +29,6 @@ pipeline {
         // Sync the application to deploy the latest changes
         sh 'argocd app sync my-python-app'
       }
-    }
+    }*/
   }
 }
