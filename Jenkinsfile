@@ -11,7 +11,7 @@ pipeline {
     stage('Build Artifact') {
       steps {
         sh 'pip install -r requirements.txt'
-        sh 'python setup.py sdist'
+        sh 'python app.py sdist'
       }
       post {
         success {
