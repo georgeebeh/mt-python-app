@@ -13,7 +13,7 @@ pipeline {
         }
 
         // Build the Docker image with the same version tag as the Jenkins build number
-        sh "docker build -t my-docker-registry/python-app:${env.VERSION} ."
+        sh "docker build -t georgeebeh/python-app:${env.VERSION} ."
       }
     }
 
