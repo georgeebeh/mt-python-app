@@ -2,33 +2,34 @@ pipeline {
   agent any
 
   stages {
-    stage('Build') {
+    stage('Checkout') {
       steps {
-        // Clone the git repository
-        git branch: 'main', url: 'https://github.com/georgeebeh/mt-python-app.git'
-
-        // Set the version number to be the same as the Jenkins build number
-        script {
-          env.VERSION = "${BUILD_NUMBER}"
-        }
-
-        // Build the Docker image with the same version tag as the Jenkins build number
-        sh "docker build -t my-docker-registry/python-app:${env.VERSION} ."
+        git 'https://github.com/georgeebeh/mt-python-app.git'
       }
     }
 
-   /* stage('Deploy') {
-      environment {
-        KUBECONFIG = credentials('my-kubeconfig')
-      }
-
+    stage('Build Artifact') {
       steps {
-        // Create the ArgoCD application
-        sh 'argocd app create my-python-app --repo https://github.com/georgeebeh/mt-python-app.git --path . --dest-namespace my-namespace --dest-server https://kubernetes.default.svc'
-
-        // Sync the application to deploy the latest changes
-        sh 'argocd app sync my-python-app'
+        sh 'pip install -r requirements.txt'
+        sh 'python setup.py sdist'
       }
-    }*/
+      post {
+        success {
+          archiveArtifacts artifacts: 'dist/*.tar.gz', onlyIfSuccessful: true
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t my-python-app .'
+        sh 'docker tag mt-python-app georgeebeh/mt-python-app'
+        withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDS', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+          sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS DOCKERHUB_CREDS'
+          sh 'docker push georgeebeh/mt-python-app'
+        }
+      }
+    }
   }
 }
+
